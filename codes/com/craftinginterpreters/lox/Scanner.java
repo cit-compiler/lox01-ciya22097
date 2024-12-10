@@ -79,6 +79,8 @@ List<Token> scanTokens() {
       default:
       if (isDigit(c)) {
         number();
+      }  else if (isAlpha(c)) {
+        identifier();
       } else {
         Lox.error(line, "Unexpected character.");
       }
@@ -99,9 +101,22 @@ List<Token> scanTokens() {
         if (current + 1 >= source.length()) return '\0';
         return source.charAt(current + 1);
       } 
+      private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+                c == '_';
+      }
+      private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
+      }
       private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
       }
+  }
+  private void identifier() {
+    while (isAlphaNumeric(peek())) advance();
+
+    addToken(IDENTIFIER);
   }
   private void number() {
     while (isDigit(peek())) advance();
