@@ -29,9 +29,6 @@ List<Token> scanTokens() {
     tokens.add(new Token(EOF, "", null, line));
     return tokens;
   }
-  private boolean isAtEnd() {
-    return current >= source.length();
-  }
   private void scanToken() {
     char c = advance();
     switch (c) {
@@ -47,3 +44,19 @@ List<Token> scanTokens() {
       case '*': addToken(STAR); break; 
     }
   }
+  private boolean isAtEnd() {
+    return current >= source.length();
+  }
+  private char advance() {
+    return source.charAt(current++);
+  }
+
+  private void addToken(TokenType type) {
+    addToken(type, null);
+  }
+
+  private void addToken(TokenType type, Object literal) {
+    String text = source.substring(start, current);
+    tokens.add(new Token(type, text, literal, line));
+  }
+  
