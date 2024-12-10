@@ -55,9 +55,33 @@ List<Token> scanTokens() {
         addToken(match('=') ? GREATER_EQUAL : GREATER);
         break;
 
+        case '/':
+        if (match('/')) {
+          //　コメントは行末まで続く
+          while (peek() != '\n' && !isAtEnd()) advance();
+        } else {
+          addToken(SLASH);
+        }
+        break;
+
+        case ' ':
+      case '\r':
+      case '\t':
+        // 空白を無視する
+        break;
+
+      case '\n':
+        line++;
+        break;
+      
+    case '"': string(); break;
 
       default:
-      Lox.error(line, "Unexpected character.");
+      if (isDigit(c)) {
+        number();
+      } else {
+        Lox.error(line, "Unexpected character.");
+      }
       break;
     }
     private boolean match(char expected) {
@@ -67,6 +91,48 @@ List<Token> scanTokens() {
         current++;
         return true;
       }
+      private char peek() {
+        if (isAtEnd()) return '\0';
+        return source.charAt(current);
+      }
+      private char peekNext() {
+        if (current + 1 >= source.length()) return '\0';
+        return source.charAt(current + 1);
+      } 
+      private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+      }
+  }
+  private void number() {
+    while (isDigit(peek())) advance();
+
+    // 小数部を探して
+    if (peek() == '.' && isDigit(peekNext())) {
+      // 小数点を消費
+      advance();
+
+      while (isDigit(peek())) advance();
+    }
+
+    addToken(NUMBER,
+        Double.parseDouble(source.substring(start, current)));
+  }
+  private void string() {
+    while (peek() != '"' && !isAtEnd()) {
+      if (peek() == '\n') line++;
+      advance();
+    }
+
+    if (isAtEnd()) {
+      Lox.error(line, "Unterminated string."); // 文字列が終結していない
+      return;
+    }
+
+    advance(); // 右側の引用符を消費
+
+    // 左右の引用符を切り捨てる
+    String value = source.substring(start + 1, current - 1);
+    addToken(STRING, value);
   }
   private boolean isAtEnd() {
     return current >= source.length();
