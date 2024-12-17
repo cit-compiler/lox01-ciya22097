@@ -43,11 +43,13 @@ private static void runFile(String path) throws IOException {
   private static void run(String source) {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
+    Parser parser = new Parser(tokens);
+    Expr expression = parser.parse();
 
-    //いまはトークンをプリントするだけ
-    for (Token token : tokens) {
-      System.out.println(token);
-    }
+    //構文エラーがあれば停止する
+    if (hadError) return;
+
+    System.out.println(new AstPrinter().print(expression));
   }
   static void error(int line, String message) {
     report(line, "", message);
@@ -58,4 +60,11 @@ private static void runFile(String path) throws IOException {
     System.err.println(
         "[line " + line + "] Error" + where + ": " + message);
     hadError = true;
+  }
+  static void error(Token token, String message) {
+    if (token.type == TokenType.EOF) {
+      report(token.line, " at end", message);
+    } else {
+      report(token.line, " at '" + token.lexeme + "'", message);
+    }
   }
