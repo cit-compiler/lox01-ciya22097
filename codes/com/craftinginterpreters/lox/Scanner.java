@@ -42,7 +42,7 @@ class Scanner {
 }
 List<Token> scanTokens() {
     while (!isAtEnd()) {
-      // We are at the beginning of the next lexeme.
+      // Ÿ‚Ìš‹å‚Ìæ“ª‚©‚çn‚ß‚é
       start = current;
       scanToken();
     }
